@@ -2,7 +2,15 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+<<<<<<< HEAD
 import { Mail, Lock, Eye, EyeOff, ArrowRight, BellDot } from "lucide-react";
+=======
+import { useRouter } from "next/navigation";
+import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
+import CustomButton from "@/components/global/Button";
+import { supabase } from "@/lib/supabaseClient";
+import { createFirstAccount } from "@/lib/dummySignup";
+>>>>>>> 38c74c80e20701ebdc27a9123f95fd00f870e250
 
 // Optional: replace with your button component
 const CustomButton = ({
@@ -69,6 +77,9 @@ export default function LoginPage() {
   const [errors, setErrors] = useState<{ email?: string; password?: string }>(
     {}
   );
+  const [loading, setLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const router = useRouter();
 
   const validate = () => {
     const nextErrors: { email?: string; password?: string } = {};
@@ -82,10 +93,12 @@ export default function LoginPage() {
     return Object.keys(nextErrors).length === 0;
   };
 
-  const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (e: React.FormEvent | null) => {
+    if(e) e.preventDefault();
+    setAuthError(null);
     if (!validate()) return;
 
+<<<<<<< HEAD
     // TODO: Connect Supabase auth here
     console.log("Form valid:", { email, password });
   };
@@ -121,6 +134,144 @@ export default function LoginPage() {
                     <p className="text-sm text-white/90">Active Jobs</p>
                     <p className="text-xl font-bold text-white">2,500+</p>
                   </div>
+=======
+    try {
+      setLoading(true);
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) {
+        setAuthError(error.message);
+        return;
+      }
+      if (typeof window !== "undefined") {
+        const loginObj = {
+          userId: data.user?.id ?? null,
+          email: data.user?.email ?? null,
+          full_name: (data.user?.user_metadata as Record<string, unknown> | null)?.full_name ?? null,
+          created_at: new Date().toISOString(),
+        };
+        window.localStorage.setItem("login", JSON.stringify(loginObj));
+      }
+      router.push("/app/dashboard");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const signInWithProvider = async (provider: "google" | "github" | "linkedin") => {
+    setAuthError(null);
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo:
+            typeof window !== "undefined"
+              ? `${window.location.origin}/app/dashboard`
+              : undefined,
+        },
+      });
+      if (error) setAuthError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <section className="min-h-screen flex items-center justify-center bg-gradient-to-b from-lime-500 to-lime-900">
+      <div className="w-full max-w-6xl mx-auto px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="hidden lg:flex flex-col justify-between rounded-3xl overflow-hidden bg-black/10 border border-white/20">
+            <div className="p-8">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-amber-900 flex items-center justify-center">
+                  <Mail className="text-white" size={18} />
+                </div>
+                <h1 className="text-2xl font-bold text-white">
+                  Right <span className="text-lime-200">Recruits</span>
+                </h1>
+              </div>
+              <p className="mt-4 text-white/90">
+                Sign in to continue your journey. Track applications, manage
+                jobs, and connect faster.
+              </p>
+              <div className="mt-8 grid grid-cols-2 gap-4">
+                <div className="bg-white/10 rounded-xl p-4">
+                  <p className="text-sm text-white/90">Trusted Employers</p>
+                  <p className="text-xl font-bold text-white">10K+</p>
+                </div>
+                <div className="bg-white/10 rounded-xl p-4">
+                  <p className="text-sm text-white/90">Active Jobs</p>
+                  <p className="text-xl font-bold text-white">2,500+</p>
+                </div>
+              </div>
+            </div>
+            <div className="p-8 bg-black/20">
+              <div className="flex items-center justify-between">
+                <p className="text-white/80">New here?</p>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setAuthError(null);
+                    setLoading(true);
+                    try {
+                      const result = await createFirstAccount();
+                      if (result.error) {
+                        setAuthError(result.error);
+                        return;
+                      }
+                      router.push("/app/dashboard");
+                    } finally {
+                      setLoading(false);
+                    }
+                  }}
+                  className="flex items-center gap-2 bg-white text-black px-4 py-2 rounded-full text-sm font-semibold hover:bg-lime-200 transition"
+                >
+                  Create Account
+                  <ArrowRight size={16} />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-3xl shadow-xl p-8 lg:p-10">
+            <div className="mb-6">
+              <h2 className="text-3xl font-bold text-gray-900">Welcome back</h2>
+              <p className="text-sm text-gray-600 mt-2">
+                Please sign in to your account
+              </p>
+            </div>
+
+            <form onSubmit={onSubmit} className="space-y-6" noValidate>
+              {authError && (
+                <div className="rounded-xl bg-red-50 border border-red-200 p-3 text-sm text-red-700">
+                  {authError}
+                </div>
+              )}
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Email address
+                </label>
+                <div className="mt-2 relative">
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className={`w-full px-4 py-3 pl-11 text-gray-800 rounded-xl border outline-none transition focus:ring-2 focus:ring-lime-500 ${
+                      errors.email ? "border-red-500" : "border-gray-300"
+                    }`}
+                    placeholder="you@example.com"
+                  />
+                  <Mail className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+>>>>>>> 38c74c80e20701ebdc27a9123f95fd00f870e250
                 </div>
               </div>
               <div className="p-8 bg-black/20">
@@ -262,6 +413,7 @@ export default function LoginPage() {
                   </button>
                 </div>
 
+<<<<<<< HEAD
                 {/* Signup link */}
                 <p className="text-center text-sm text-gray-600">
                   Don&apos;t have an account?{" "}
@@ -274,6 +426,81 @@ export default function LoginPage() {
                 </p>
               </form>
             </div>
+=======
+              <div className="flex items-center justify-between">
+                <label className="flex items-center gap-2 text-sm text-gray-700">
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4 rounded border-gray-300 text-lime-600 focus:ring-lime-500"
+                  />
+                  Remember me
+                </label>
+                <Link
+                  href="/forgot-password"
+                  className="text-sm font-medium text-lime-700 hover:text-lime-900"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+
+              <CustomButton
+                text={loading ? "Signing In..." : "Sign In"}
+                bgColor="bg-lime-500 w-full"
+                textColor="text-white"
+                hoverColor="hover:bg-lime-600"
+                className="py-3 rounded-xl"
+              />
+
+              <CustomButton
+                text={loading ? "Signing In..." : "Quick Sign In"}
+                bgColor="bg-lime-600 w-full"
+                textColor="text-white"
+                hoverColor="hover:bg-lime-400"
+                className="py-3 rounded-xl"
+                onClick={() => {setEmail("aj.aimaljan@gmail.com"); setPassword("abd1234"); onSubmit(null);}}
+              />
+
+              <div className="flex items-center gap-3">
+                <div className="h-px bg-gray-200 flex-1" />
+                <span className="text-xs text-gray-500">or continue with</span>
+                <div className="h-px bg-gray-200 flex-1" />
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <button
+                  type="button"
+                  onClick={() => signInWithProvider("google")}
+                  className="w-full border border-gray-300 rounded-xl py-2 text-sm hover:bg-gray-50 transition"
+                >
+                  Google
+                </button>
+                <button
+                  type="button"
+                  onClick={() => signInWithProvider("github")}
+                  className="w-full border border-gray-300 rounded-xl py-2 text-sm hover:bg-gray-50 transition"
+                >
+                  GitHub
+                </button>
+                <button
+                  type="button"
+                  onClick={() => signInWithProvider("linkedin")}
+                  className="w-full border border-gray-300 rounded-xl py-2 text-sm hover:bg-gray-50 transition"
+                >
+                  LinkedIn
+                </button>
+              </div>
+
+              <p className="text-center text-sm text-gray-600">
+                Don&apos;t have an account?{" "}
+                <Link
+                  href="/register"
+                  className="font-semibold text-lime-700 hover:text-lime-900"
+                >
+                  Sign up
+                </Link>
+              </p>
+            </form>
+>>>>>>> 38c74c80e20701ebdc27a9123f95fd00f870e250
           </div>
         </div>
       </section>
