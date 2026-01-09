@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient";
 import {
   LayoutDashboard,
   Users,
@@ -18,6 +20,14 @@ import {
 
 const Sidebar = () => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const router = useRouter();
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    if (typeof window !== "undefined") {
+      window.localStorage.removeItem("login");
+    }
+    router.push("/login");
+  };
 
   const menuItems = [
     {
@@ -75,11 +85,13 @@ const Sidebar = () => {
         </div>
 
         <div className="mt-3 px-4 py-1 bg-lime-500 rounded-full shadow-sm">
-          <span className="text-sm font-semibold text-white">Furqan Qazi</span>
+          <span className="text-sm font-semibold text-white">
+            {JSON.parse(window.localStorage.getItem("login") ?? "{}")?.full_name ?? "No Name"}
+          </span>
         </div>
 
         <a href="#" className="mt-2 text-xs text-lime-300 hover:underline">
-          Instagram App
+          Job seeker
         </a>
 
         <div className="flex items-center gap-1 mt-1 text-xs text-gray-300">
@@ -91,23 +103,41 @@ const Sidebar = () => {
       {/* MENU */}
       <nav className="flex flex-col space-y-2">
         {menuItems.map((item, index) => (
-          <Link
-            key={index}
-            href={item.link}
-            onClick={() => setActiveIndex(index)}
-            className={`
+          item.label === "Logout" ? (
+            <button
+              key={index}
+              onClick={() => {
+                setActiveIndex(index);
+                handleLogout();
+              }}
+              className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-colors duration-200 cursor-pointer ${
+                activeIndex === index
+                  ? "bg-gray-800 text-green-400"
+                  : "text-gray-200 hover:bg-gray-800/50 hover:text-green-400"
+              }`}
+            >
+              {item.icon}
+              <span className="text-sm font-medium">{item.label}</span>
+            </button>
+          ) : (
+            <Link
+              key={index}
+              href={item.link}
+              onClick={() => setActiveIndex(index)}
+              className={`
               flex items-center gap-3 px-4 py-2 rounded-lg transition-colors duration-200
               cursor-pointer
               ${
                 activeIndex === index
-                  ? "bg-gray-800 text-green-400" // Active style (clicked)
-                  : "text-gray-200 hover:bg-gray-800/50 hover:text-green-400" // Hover style
+                  ? "bg-gray-800 text-green-400"
+                  : "text-gray-200 hover:bg-gray-800/50 hover:text-green-400"
               }
             `}
-          >
-            {item.icon}
-            <span className="text-sm font-medium">{item.label}</span>
-          </Link>
+            >
+              {item.icon}
+              <span className="text-sm font-medium">{item.label}</span>
+            </Link>
+          )
         ))}
       </nav>
     </aside>
