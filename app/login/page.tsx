@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, BellDot } from "lucide-react";
 import CustomButton from "@/components/global/Button";
 import { supabase } from "@/lib/supabaseClient";
+import { createCandidate } from "@/lib/candidates";
 import { createFirstAccount } from "@/lib/dummySignup";
 
 // Navbar Component

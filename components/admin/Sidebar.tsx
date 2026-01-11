@@ -33,12 +33,12 @@ const Sidebar = () => {
     {
       icon: <LayoutDashboard size={20} />,
       label: "User Dashboard",
-      link: "/admin/dashboard",
+      link: "/app/dashboard",
     },
     {
       icon: <Users size={20} />,
       label: "User Profile",
-      link: "/admin/userprofile",
+      link: "/app/userprofile",
     },
 
     { icon: <Briefcase size={20} />, label: "My Jobs", link: "/my-jobs" },
@@ -86,7 +86,8 @@ const Sidebar = () => {
 
         <div className="mt-3 px-4 py-1 bg-lime-500 rounded-full shadow-sm">
           <span className="text-sm font-semibold text-white">
-            {JSON.parse(window.localStorage.getItem("login") ?? "{}")?.full_name ?? "No Name"}
+            {JSON.parse(window.localStorage.getItem("login") ?? "{}")
+              ?.full_name ?? "No Name"}
           </span>
         </div>
 
@@ -102,7 +103,7 @@ const Sidebar = () => {
 
       {/* MENU */}
       <nav className="flex flex-col space-y-2">
-        {menuItems.map((item, index) => (
+        {menuItems.map((item, index) =>
           item.label === "Logout" ? (
             <button
               key={index}
@@ -138,7 +139,7 @@ const Sidebar = () => {
               <span className="text-sm font-medium">{item.label}</span>
             </Link>
           )
-        ))}
+        )}
       </nav>
     </aside>
   );
