@@ -90,34 +90,46 @@ export type Database = {
       }
       candidates: {
         Row: {
+          address: Json | null
           created_at: string | null
           current_role: string | null
-          education_level: string | null
+          education: Json | null
           email: string
+          experience: Json | null
           full_name: string
           id: string
+          introduction: string | null
+          skills: Json | null
           summary: string | null
-          total_experience_years: number | null
+          user_id: string
         }
         Insert: {
+          address?: Json | null
           created_at?: string | null
           current_role?: string | null
-          education_level?: string | null
+          education?: Json | null
           email: string
+          experience?: Json | null
           full_name: string
           id?: string
+          introduction?: string | null
+          skills?: Json | null
           summary?: string | null
-          total_experience_years?: number | null
+          user_id: string
         }
         Update: {
+          address?: Json | null
           created_at?: string | null
           current_role?: string | null
-          education_level?: string | null
+          education?: Json | null
           email?: string
+          experience?: Json | null
           full_name?: string
           id?: string
+          introduction?: string | null
+          skills?: Json | null
           summary?: string | null
-          total_experience_years?: number | null
+          user_id?: string
         }
         Relationships: []
       }
