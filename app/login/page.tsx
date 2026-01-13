@@ -5,9 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, BellDot } from "lucide-react";
 import CustomButton from "@/components/global/Button";
-import { supabase } from "@/lib/supabaseClient";
-import { createCandidate } from "@/lib/candidates";
-import { createFirstAccount } from "@/lib/dummySignup";
+import { supabase } from "@/src/lib/supabaseClient";
+import { createFirstAccount } from "@/src/lib/dummySignup";
 
 // Navbar Component
 const Navbar: React.FC = () => {
@@ -89,6 +88,16 @@ export default function LoginPage() {
         setAuthError(error.message);
         return;
       }
+      const {data:details, error:userError} = await supabase
+      .from('candidates')
+      .select('*')
+      .eq('user_id', data.user?.id)
+      .single();
+      if (userError) {
+        setAuthError(userError.message);
+        return;
+      }
+
       if (typeof window !== "undefined") {
         const loginObj = {
           userId: data.user?.id ?? null,
@@ -97,6 +106,7 @@ export default function LoginPage() {
             (data.user?.user_metadata as Record<string, unknown> | null)
               ?.full_name ?? null,
           created_at: new Date().toISOString(),
+          details
         };
         window.localStorage.setItem("login", JSON.stringify(loginObj));
       }
@@ -170,7 +180,7 @@ export default function LoginPage() {
                         setAuthError(result.error);
                         return;
                       }
-                      router.push("/app/dashboard");
+                    //   router.push("/app/dashboard");
                     } finally {
                       setLoading(false);
                     }
