@@ -50,13 +50,13 @@ const InputField: React.FC<InputFieldProps> = ({
       {label && (
         <label
           htmlFor={id ?? name}
-          className="block text-sm font-medium text-gray-500"
+          className="block text-sm font-medium text-gray-500 ms-1"
         >
           {label}
         </label>
       )}
 
-      <div className="mt-6 relative">
+      <div className="mt-2 relative">
         {hasIcon && iconPosition === "left" && Icon && (
           <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
             <Icon className="w-5 h-5" />
@@ -71,7 +71,7 @@ const InputField: React.FC<InputFieldProps> = ({
           value={value}
           onChange={handleChange}
           placeholder={placeholder}
-          className={`w-full px-3 py-2 ${paddingClass} rounded-lg border outline-none transition focus:ring-2 focus:ring-lime-500 ${borderClass}`}
+          className={`w-full px-3 py-2 ${paddingClass} rounded-lg border outline-none transition text-gray-700 focus:ring-2 focus:ring-lime-500 ${borderClass}`}
         />
 
         {hasIcon && iconPosition === "right" && Icon && (

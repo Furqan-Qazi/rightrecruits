@@ -1,11 +1,11 @@
 "use client";
 
 import React from "react";
-import AdminCard from "@/components/admin/AdminCard";
+import AdminCard from "@/components/app/AdminCard";
 import { adminStats } from "./stats";
-import ExtraAreaChart from "@/components/admin/dashboard/ExtraAreaChart";
-import NotificationPanel from "@/components/admin/dashboard/NotificationPanel";
-import RecentPosted from "@/components/admin/dashboard/RecentPosted";
+import ExtraAreaChart from "@/components/app/dashboard/ExtraAreaChart";
+import NotificationPanel from "@/components/app/dashboard/NotificationPanel";
+import RecentPosted from "@/components/app/dashboard/RecentPosted";
 
 export default function AdminDashboardPage() {
   return (

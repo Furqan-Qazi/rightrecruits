@@ -72,7 +72,7 @@ const TextAreaField: React.FC<TextAreaFieldProps> = ({
           onChange={handleChange}
           placeholder={placeholder}
           rows={rows}
-          className={`w-full px-3 py-2 ${paddingClass} rounded-lg border outline-none transition focus:ring-2 focus:ring-lime-500 ${borderClass}`}
+          className={`w-full px-3 py-2 ${paddingClass} text-gray-700 rounded-lg border outline-none transition focus:ring-2 focus:ring-lime-500 ${borderClass}`}
         />
 
         {hasIcon && iconPosition === "right" && Icon && (
