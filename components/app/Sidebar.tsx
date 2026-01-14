@@ -86,7 +86,7 @@ const Sidebar = () => {
 
         <div className="mt-3 px-4 py-1 bg-lime-500 rounded-full shadow-sm">
           <span className="text-sm font-semibold text-white">
-            {JSON.parse(window.localStorage.getItem("login") ?? "{}")
+            {JSON.parse(window?.localStorage.getItem("login") ?? "{}")
               ?.full_name ?? "No Name"}
           </span>
         </div>

@@ -1,11 +1,18 @@
 "use client";
 
-import React from "react";
+import EducationSection from "@/components/app/userProfile/Education";
+import ExperienceSection from "@/components/app/userProfile/Experience";
+import SkillsSection from "@/components/app/userProfile/Skills";
 
 export default function UserProfile() {
+
   return (
-    <div className="space-y-8 ml-4">
-      <h1>user profile</h1>
-    </div>
+    <>
+      <EducationSection />
+      <div className="my-10"></div>
+      <ExperienceSection />
+      <div className="my-10"></div>
+      <SkillsSection />
+    </>
   );
 }

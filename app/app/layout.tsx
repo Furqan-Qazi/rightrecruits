@@ -1,7 +1,7 @@
 "use client";
 
-import Sidebar from "@/components/admin/Sidebar";
-import Topbar from "@/components/admin/Topbar";
+import Sidebar from "@/components/app/Sidebar";
+import Topbar from "@/components/app/Topbar";
 
 export default function AdminLayout({
   children,
