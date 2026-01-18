@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import * as m from "country-state-city";
 
 type Props = {
   country: string;
@@ -25,9 +26,7 @@ export default function CountryStateCity({
 
   // Load countries
   useEffect(() => {
-    import("country-state-city").then((m) => {
-      setCountries(m.Country.getAllCountries());
-    });
+    setCountries(m.Country.getAllCountries());
   }, []);
 
   // Load states when country changes
@@ -38,10 +37,8 @@ export default function CountryStateCity({
       return;
     }
 
-    import("country-state-city").then((m) => {
-      setStates(m.State.getStatesOfCountry(country));
-      setCities([]);
-    });
+    setStates(m.State.getStatesOfCountry(country));
+    setCities([]);
   }, [country]);
 
   // Load cities when state changes
@@ -51,9 +48,7 @@ export default function CountryStateCity({
       return;
     }
 
-    import("country-state-city").then((m) => {
-      setCities(m.City.getCitiesOfState(country, state));
-    });
+    setCities(m.City.getCitiesOfState(country, state));
   }, [country, state]);
 
   return (
