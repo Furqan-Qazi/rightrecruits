@@ -8,7 +8,7 @@ export type Education = {
   from: string;
   to: string;
   description: string;
-}
+};
 
 export type Expereince = {
   user_id?: string | null;
@@ -16,7 +16,8 @@ export type Expereince = {
   company: string;
   start_date: string;
   end_date: string;
-}
+};
+
 export type Introduction = {
   user_id?: string | null;
   full_name: string;
@@ -29,8 +30,7 @@ export type Introduction = {
   headline: string;
   summary: string;
   cv: string;
-}
-
+};
 export type CandidateInsert = {
   full_name: string | object | null;
   email?: string | null;
@@ -47,17 +47,43 @@ export async function createCandidate(candidate: CandidateInsert) {
     .single();
   return { data, error };
 }
-
-export async function updateIntroduction(introduction: Introduction) {
+/* ===== GET INTRO ===== */
+export async function getCandidateIntroduction(user_id: string) {
   const { data, error } = await supabase
     .from("candidates")
-    .update({ introduction })
-    .eq("user_id", introduction.user_id)
-    .select()
+    .select(
+      `
+      full_name,
+      email,
+      phone,
+      date_of_birth,
+      country,
+      state,
+      city,
+      address,
+      headline,
+      summary,
+      cv
+    `
+    )
+    .eq("user_id", user_id)
     .single();
+
   return { data, error };
 }
-export async function updateEducation(education: Education[], user_id:string) {
+
+/* ===== UPDATE INTRO ===== */
+export async function updateIntroduction(user_id: string, intro: Introduction) {
+  const { data, error } = await supabase
+    .from("candidates")
+    .update(intro)
+    .eq("user_id", user_id)
+    .select()
+    .single();
+
+  return { data, error };
+}
+export async function updateEducation(education: Education[], user_id: string) {
   const { data, error } = await supabase
     .from("candidates")
     .update({ education })
@@ -77,7 +103,7 @@ export async function updateExperiece(experience: Expereince) {
   return { data, error };
 }
 
-export async function updateSkills(skills: string[], user_id:string) {
+export async function updateSkills(skills: string[], user_id: string) {
   const { data, error } = await supabase
     .from("candidates")
     .update({ skills })

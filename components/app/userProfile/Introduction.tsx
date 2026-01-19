@@ -4,7 +4,12 @@ import { Edit, Plus, Trash } from "lucide-react";
 import InputField from "../../../components/global/InputField";
 import TextAreaField from "../../../components/global/TextAreaField";
 import CountryStateCity from "./CountryStateCity";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/src/lib/supabaseClient";
+import {
+  getCandidateIntroduction,
+  updateIntroduction,
+} from "@/src/lib/candidates";
 
 type Introduction = {
   id: string;
@@ -18,12 +23,14 @@ type Introduction = {
   state: string;
   city: string;
   about_yourself: string;
-  cvFileName?: string; // CV file name
+  cvFileName?: string;
 };
 
 export default function IntroductionSection() {
-  const [addIntroduction, setAddIntroduction] = useState<boolean>(false);
-  const [list, setList] = useState<Introduction[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
+  const [userId, setUserId] = useState<string | null>(null);
+
   const [form, setForm] = useState<Introduction>({
     id: "",
     name: "",
@@ -38,57 +45,115 @@ export default function IntroductionSection() {
     about_yourself: "",
     cvFileName: "",
   });
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [cvFile, setCvFile] = useState<File | null>(null); // CV state
 
-  const addIntroductionHandler = () => {
-    if (!form.name || !form.email || !form.phone_number) return;
+  const [cvFile, setCvFile] = useState<File | null>(null);
 
-    const newItem: Introduction = {
-      ...form,
-      id: editingId || Date.now().toString(),
-      cvFileName: cvFile ? cvFile.name : form.cvFileName || "",
+  /* ================= LOAD DATA ON LOGIN ================= */
+  // useEffect(() => {
+  //   const loadIntro = async () => {
+  //     const {
+  //       data: { user },
+  //     } = await supabase.auth.getUser();
+
+  //     if (!user) return;
+
+  //     setUserId(user.id);
+
+  //     const { data } = await getCandidateIntroduction(user.id);
+
+  //     if (data) {
+  //       setForm({
+  //         id: user.id,
+  //         name: data.full_name || "",
+  //         email: data.email || "",
+  //         phone_number: data.phone || "",
+  //         to: data.date_of_birth || "",
+  //         address: data.address || "",
+  //         country: data.country || "",
+  //         state: data.state || "",
+  //         city: data.city || "",
+  //         line: data.headline || "",
+  //         about_yourself: data.summary || "",
+  //         cvFileName: data.cv || "",
+  //       });
+
+  //       setMessage("Profile loaded successfully ✅");
+  //     }
+
+  //     setLoading(false);
+  //   };
+
+  //   loadIntro();
+  // }, []);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
+
+      setUserId(user.id);
+
+      // Get candidate profile
+      const { data, error } = await supabase
+        .from("candidates")
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
+
+      if (data) {
+        setForm({
+          id: user.id,
+          name: data.full_name || "",
+          email: user.email || "",
+          phone_number: data.phone || "",
+          to: data.date_of_birth || "",
+          address: data.address || "",
+          country: data.country || "",
+          state: data.state || "",
+          city: data.city || "",
+          line: data.headline || "",
+          about_yourself: data.summary || "",
+          cvFileName: data.cv || "",
+        });
+        setMessage("Profile loaded successfully ✅");
+      }
+      setLoading(false);
     };
 
-    if (editingId) {
-      // Edit
-      setList((prev) => prev.map((e) => (e.id === editingId ? newItem : e)));
-      setEditingId(null);
+    loadProfile();
+  }, []);
+
+  /* ================= SAVE INTRO ================= */
+  const addIntroductionHandler = async () => {
+    if (!userId) return;
+
+    const payload = {
+      full_name: form.name,
+      phone: form.phone_number,
+      date_of_birth: form.to,
+      country: form.country,
+      state: form.state,
+      city: form.city,
+      address: form.address,
+      headline: form.line,
+      summary: form.about_yourself,
+      cv: form.cvFileName || "",
+    };
+
+    const { error } = await updateIntroduction(userId, payload);
+
+    if (error) {
+      setMessage("Failed to save ❌");
     } else {
-      // Add
-      setList((prev) => [...prev, newItem]);
+      setMessage("Introduction saved successfully ✅");
     }
-
-    // Reset
-    setForm({
-      id: "",
-      name: "",
-      email: "",
-      line: "",
-      phone_number: "",
-      to: "",
-      address: "",
-      country: "",
-      state: "",
-      city: "",
-      about_yourself: "",
-      cvFileName: "",
-    });
-    setCvFile(null);
-    setAddIntroduction(false);
   };
 
-  const removeIntroduction = (id: string) => {
-    setList((prev) => prev.filter((e) => e.id !== id));
-  };
-
-  const editIntroduction = (item: Introduction) => {
-    setForm(item);
-    setCvFile(null); // CV reset
-    setEditingId(item.id);
-    setAddIntroduction(true);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+  if (loading) {
+    return <p className="text-center text-gray-500">Loading profile...</p>;
+  }
 
   return (
     <section className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-8 space-y-8">
@@ -104,51 +169,9 @@ export default function IntroductionSection() {
         </button>
       </div>
 
-      {/* LIST */}
-      <div className="space-y-4">
-        {list.map((e) => (
-          <div
-            key={e.id}
-            className="flex justify-between items-start p-4 border rounded-lg hover:shadow-lg transition-shadow duration-300"
-          >
-            <div className="space-y-1">
-              <h3 className="font-semibold text-gray-700 text-lg">{e.name}</h3>
-              <p className="text-sm text-gray-700">
-                {e.email} — {e.line || "N/A"}
-              </p>
-              <p className="text-xs text-gray-500">
-                {e.phone_number} – {e.to || "Present"}
-              </p>
-              <p className="text-xs text-gray-500">
-                {e.country || "-"} / {e.state || "-"} / {e.city || "-"}
-              </p>
-              {e.about_yourself && (
-                <p className="text-sm mt-2 text-gray-500">{e.about_yourself}</p>
-              )}
-              {e.cvFileName && (
-                <p className="text-sm text-green-600 mt-1">
-                  CV: {e.cvFileName}
-                </p>
-              )}
-            </div>
-
-            <div className="flex gap-2 mt-1">
-              <button
-                onClick={() => editIntroduction(e)}
-                className="text-blue-500 hover:text-blue-700"
-              >
-                <Edit />
-              </button>
-              <button
-                onClick={() => removeIntroduction(e.id)}
-                className="text-red-500 hover:text-red-700"
-              >
-                <Trash />
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+      {message && (
+        <p className="text-sm text-green-600 font-medium">{message}</p>
+      )}
 
       {/* FORM */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6 rounded-lg bg-gray-50">
@@ -157,22 +180,21 @@ export default function IntroductionSection() {
           value={form.name}
           setValue={(v) => setForm({ ...form, name: v })}
         />
-        <InputField
-          placeholder="Email"
-          value={form.email}
-          setValue={(v) => setForm({ ...form, email: v })}
-          disabled
-        />
+
+        <InputField placeholder="Email" value={form.email} disabled />
+
         <InputField
           placeholder="Phone Number"
           value={form.phone_number}
           setValue={(v) => setForm({ ...form, phone_number: v })}
         />
+
         <InputField
           placeholder="Birth Date"
           value={form.to}
           setValue={(v) => setForm({ ...form, to: v })}
         />
+
         <CountryStateCity
           country={form.country}
           state={form.state}
@@ -182,7 +204,7 @@ export default function IntroductionSection() {
           setCity={(v) => setForm({ ...form, city: v })}
         />
 
-        {/* CV Upload */}
+        {/* CV */}
         <div className="md:col-span-2">
           <label className="block text-sm font-medium text-gray-500 mb-2">
             Upload Your CV
@@ -191,34 +213,28 @@ export default function IntroductionSection() {
             type="file"
             accept=".pdf,.doc,.docx"
             onChange={(e) => {
-              if (e.target.files && e.target.files[0]) {
-                const file = e.target.files[0];
-                setCvFile(file);
-                setForm({ ...form, cvFileName: file.name });
+              if (e.target.files?.[0]) {
+                setCvFile(e.target.files[0]);
+                setForm({ ...form, cvFileName: e.target.files[0].name });
               }
             }}
-            className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white outline-none focus:ring-2 focus:ring-lime-500"
+            className="w-full px-3 py-2 rounded-lg border"
           />
-          {cvFile && (
-            <p className="text-sm text-green-600 mt-1">
-              Selected: {cvFile.name}
-            </p>
-          )}
         </div>
 
         <TextAreaField
           className="md:col-span-2"
           placeholder="Address"
-          rows={4}
+          rows={3}
           value={form.address}
           setValue={(v) => setForm({ ...form, address: v })}
         />
 
         <InputField
           className="md:col-span-2"
-          placeholder="Line"
+          placeholder="Headline"
           value={form.line}
-          setValue={(v) => setForm({ ...form, line: v.toString() })}
+          setValue={(v) => setForm({ ...form, line: v })}
         />
 
         <TextAreaField
@@ -226,7 +242,7 @@ export default function IntroductionSection() {
           placeholder="About Yourself"
           rows={4}
           value={form.about_yourself}
-          setValue={(v) => setForm({ ...form, about_yourself: v.toString() })}
+          setValue={(v) => setForm({ ...form, about_yourself: v })}
         />
       </div>
     </section>

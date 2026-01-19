@@ -6,8 +6,6 @@ import TextAreaField from "../../../components/global/TextAreaField";
 import { useState } from "react";
 import { Education, updateEducation } from "@/src/lib/candidates";
 
-
-
 export default function EducationSection() {
   const [addEducation, setAddEducation] = useState<boolean>(false);
   const [list, setList] = useState<Education[]>([]);
@@ -61,7 +59,7 @@ export default function EducationSection() {
   };
 
   const saveEducationHandler = () => {
-    const {userId} = JSON.parse(window.localStorage.login);
+    const { userId } = JSON.parse(window.localStorage.login);
     updateEducation(list, userId);
   };
 
