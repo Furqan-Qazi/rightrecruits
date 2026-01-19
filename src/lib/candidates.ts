@@ -31,6 +31,7 @@ export type Introduction = {
   summary: string;
   cv: string;
 };
+
 export type CandidateInsert = {
   full_name: string | object | null;
   email?: string | null;
@@ -47,25 +48,12 @@ export async function createCandidate(candidate: CandidateInsert) {
     .single();
   return { data, error };
 }
+
 /* ===== GET INTRO ===== */
 export async function getCandidateIntroduction(user_id: string) {
   const { data, error } = await supabase
     .from("candidates")
-    .select(
-      `
-      full_name,
-      email,
-      phone,
-      date_of_birth,
-      country,
-      state,
-      city,
-      address,
-      headline,
-      summary,
-      cv
-    `
-    )
+    .select("*")
     .eq("user_id", user_id)
     .single();
 
