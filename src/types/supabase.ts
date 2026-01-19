@@ -93,12 +93,14 @@ export type Database = {
           address: Json | null
           created_at: string | null
           current_role: string | null
+          date_of_birth: string | null
           education: Json | null
           email: string
           experience: Json | null
           full_name: string
+          headline: string | null
           id: string
-          introduction: string | null
+          phone: string | null
           skills: Json | null
           summary: string | null
           user_id: string
@@ -107,12 +109,14 @@ export type Database = {
           address?: Json | null
           created_at?: string | null
           current_role?: string | null
+          date_of_birth?: string | null
           education?: Json | null
           email: string
           experience?: Json | null
           full_name: string
+          headline?: string | null
           id?: string
-          introduction?: string | null
+          phone?: string | null
           skills?: Json | null
           summary?: string | null
           user_id: string
@@ -121,12 +125,14 @@ export type Database = {
           address?: Json | null
           created_at?: string | null
           current_role?: string | null
+          date_of_birth?: string | null
           education?: Json | null
           email?: string
           experience?: Json | null
           full_name?: string
+          headline?: string | null
           id?: string
-          introduction?: string | null
+          phone?: string | null
           skills?: Json | null
           summary?: string | null
           user_id?: string
