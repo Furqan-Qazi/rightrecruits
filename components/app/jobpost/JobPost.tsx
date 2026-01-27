@@ -4,21 +4,17 @@ import { Edit, Plus, Trash } from "lucide-react";
 import InputField from "../../../components/global/InputField";
 import TextAreaField from "../../../components/global/TextAreaField";
 import { useState, useEffect } from "react";
-import { addJob, updateJob, deleteJob, getJobs, JobDB } from "@/src/lib/jobs";
-import { supabase } from "@/src/lib/supabaseClient";
+import { addJob, updateJob, deleteJob, getMyJobs, JobDB } from "@/src/lib/jobs";
+import { getEmployerByUser } from "@/src/lib/employer";
 
 /* ================= TYPES ================= */
-type SalaryRange = {
-  min: number;
-  max: number;
-};
+type SalaryRange = { min: number; max: number };
 
 type Job = {
   id: string;
   JobTittle: string;
   company_name: string;
   employment_type: string;
-  // from: string;
   salary: SalaryRange;
   location: string;
   JobDescription: string;
@@ -34,40 +30,26 @@ export default function JobPost() {
     JobTittle: "",
     company_name: "",
     employment_type: "",
-    // from: "",
     salary: { min: 30000, max: 80000 },
     location: "",
     JobDescription: "",
   });
 
-  const [employerId, setEmployerId] = useState<string>("");
-
-  // ================= GET EMPLOYER ID =================
+  /* ================= LOAD JOBS ================= */
   useEffect(() => {
-    const getUser = async () => {
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.getUser();
-      if (error) return console.error(error.message);
-      if (user) setEmployerId(user.id);
-    };
-    getUser();
-  }, []);
-
-  // ================= LOAD JOBS =================
-  useEffect(() => {
-    if (!employerId) return;
     const loadJobs = async () => {
-      const { data, error } = await getJobs(employerId);
+      const employer = await getEmployerByUser();
+      if (!employer) return console.error("Employer not found");
+
+      const { data, error } = await getMyJobs();
       if (error) return console.error(error.message);
+
       if (data) {
         const jobs = data.map((job: any) => ({
           id: job.id,
           JobTittle: job.job_title,
           company_name: job.company_name || "",
           employment_type: job.employment_type || "",
-          // from: job.from || "",
           salary: {
             min: job.salary_min || 30000,
             max: job.salary_max || 80000,
@@ -79,58 +61,89 @@ export default function JobPost() {
       }
     };
     loadJobs();
-  }, [employerId]);
+  }, []);
 
-  // ================= ADD / UPDATE JOB =================
+  /* ================= ADD / UPDATE JOB ================= */
   const handleAddOrUpdateJob = async () => {
-    if (!form.JobTittle || !form.company_name || !employerId) return;
+    if (!form.JobTittle || !form.company_name) return;
 
-    const payload: JobDB = {
+    const payload: Omit<JobDB, "employer_id"> = {
       job_title: form.JobTittle,
       company_name: form.company_name,
       employment_type: form.employment_type,
-      // from: form.from,
       salary_min: form.salary.min,
       salary_max: form.salary.max,
       location: form.location,
       job_description: form.JobDescription,
-      employer_id: employerId,
     };
 
-    if (editingId) {
-      const { data, error } = await updateJob(editingId, payload);
-      if (error) return alert("Update failed: " + error.message);
-      setList((prev) =>
-        prev.map((j) => (j.id === editingId ? { ...form, id: editingId } : j)),
-      );
-      setEditingId(null);
-    } else {
-      const { data, error } = await addJob(payload);
-      if (error) return alert("Insert failed: " + error.message);
-      setList((prev) => [...prev, { ...form, id: data.id }]);
+    try {
+      if (editingId) {
+        const { data, error } = await updateJob(editingId, payload as JobDB);
+        if (error) throw error;
+
+        setList((prev) =>
+          prev.map((j) =>
+            j.id === editingId
+              ? {
+                  ...j,
+                  ...payload,
+                  JobTittle: payload.job_title,
+                  JobDescription: payload.job_description || "",
+                  salary: {
+                    min: payload.salary_min || 0,
+                    max: payload.salary_max || 0,
+                  },
+                }
+              : j,
+          ),
+        );
+        setEditingId(null);
+      } else {
+        const { data, error } = await addJob(payload as JobDB);
+        if (error) throw error;
+
+        setList((prev) => [
+          ...prev,
+          {
+            id: data.id,
+            JobTittle: data.job_title,
+            company_name: data.company_name || "",
+            employment_type: data.employment_type || "",
+            salary: { min: data.salary_min || 0, max: data.salary_max || 0 },
+            location: data.location || "",
+            JobDescription: data.job_description || "",
+          },
+        ]);
+      }
+
+      setForm({
+        id: "",
+        JobTittle: "",
+        company_name: "",
+        employment_type: "",
+        salary: { min: 30000, max: 80000 },
+        location: "",
+        JobDescription: "",
+      });
+      setAddJobForm(false);
+    } catch (err: any) {
+      alert("Error: " + err.message);
     }
-
-    setForm({
-      id: "",
-      JobTittle: "",
-      company_name: "",
-      employment_type: "",
-      // from: "",
-      salary: { min: 30000, max: 80000 },
-      location: "",
-      JobDescription: "",
-    });
-    setAddJobForm(false);
   };
 
-  // ================= DELETE JOB =================
+  /* ================= DELETE JOB ================= */
   const handleDeleteJob = async (id: string) => {
-    const { error } = await deleteJob(id);
-    if (error) return alert("Delete failed: " + error.message);
-    setList((prev) => prev.filter((j) => j.id !== id));
+    try {
+      const { error } = await deleteJob(id);
+      if (error) throw error;
+      setList((prev) => prev.filter((j) => j.id !== id));
+    } catch (err: any) {
+      alert("Delete failed: " + err.message);
+    }
   };
 
-  // ================= EDIT JOB =================
+  /* ================= EDIT JOB ================= */
   const handleEditJob = (job: Job) => {
     setForm(job);
     setEditingId(job.id);
@@ -221,50 +234,33 @@ export default function JobPost() {
               setValue={(v) => setForm({ ...form, location: v })}
             />
 
-            {/* SALARY RANGE */}
             <div className="md:col-span-2 space-y-2">
               <label className="text-sm font-medium text-gray-600">
                 Salary Range
               </label>
-              <div className="relative">
+              <div className="flex gap-2">
                 <input
-                  type="range"
-                  min={0}
-                  max={300000}
-                  step={5000}
+                  type="number"
                   value={form.salary.min}
                   onChange={(e) =>
                     setForm({
                       ...form,
-                      salary: {
-                        ...form.salary,
-                        min: Math.min(+e.target.value, form.salary.max - 5000),
-                      },
-                    })
-                  }
-                  className="w-full absolute"
-                />
-                <input
-                  type="range"
-                  min={0}
-                  max={300000}
-                  step={5000}
-                  value={form.salary.max}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      salary: {
-                        ...form.salary,
-                        max: Math.max(+e.target.value, form.salary.min + 5000),
-                      },
+                      salary: { ...form.salary, min: +e.target.value },
                     })
                   }
                   className="w-full"
                 />
-              </div>
-              <div className="flex justify-between text-sm">
-                <span>Min: Rs {form.salary.min.toLocaleString()}</span>
-                <span>Max: Rs {form.salary.max.toLocaleString()}</span>
+                <input
+                  type="number"
+                  value={form.salary.max}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      salary: { ...form.salary, max: +e.target.value },
+                    })
+                  }
+                  className="w-full"
+                />
               </div>
             </div>
 

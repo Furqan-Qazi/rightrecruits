@@ -4,7 +4,6 @@ import { Edit, Plus, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 import InputField from "../../global/InputField";
 import TextAreaField from "../../global/TextAreaField";
-
 import {
   Employer,
   getCandidateEmployer,
@@ -27,6 +26,7 @@ export default function EmployerSection() {
     description: "",
   });
 
+  /* LOAD EMPLOYERS */
   useEffect(() => {
     const load = async () => {
       const { data } = await getCandidateEmployer();
@@ -41,13 +41,11 @@ export default function EmployerSection() {
     if (!form.company_name) return;
 
     if (editingId) {
-      // EDIT existing row
       setList((prev) =>
         prev.map((e) => (e.id === editingId ? { ...form, id: editingId } : e)),
       );
       setEditingId(null);
     } else {
-      // ADD new row
       setList((prev) => [...prev, { ...form, id: crypto.randomUUID() }]);
     }
 
@@ -61,6 +59,7 @@ export default function EmployerSection() {
     setShowForm(false);
   };
 
+  /* EDIT LOCAL */
   const editHandler = (e: Employer) => {
     setForm(e);
     setEditingId(e.id || null);
@@ -68,6 +67,7 @@ export default function EmployerSection() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  /* DELETE */
   const removeHandler = async (id: string) => {
     const { error } = await deleteEmployer(id);
     if (!error) {
@@ -78,6 +78,7 @@ export default function EmployerSection() {
     }
   };
 
+  /* SAVE TO DB */
   const saveHandler = async () => {
     if (list.length === 0) return;
 
