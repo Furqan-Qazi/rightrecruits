@@ -10,55 +10,53 @@ export type JobDB = {
   salary_max?: number;
   location?: string;
   job_description?: string;
-  employer_id?: string;
+  employer_id?: string; // FK
 };
 
-// Add new job
+/* ================= ADD JOB ================= */
 export const addJob = async (payload: Omit<JobDB, "employer_id">) => {
   const employer = await getEmployerByUser();
   if (!employer) throw new Error("Employer not found");
 
-  const jobPayload: JobDB = {
-    ...payload,
-    employer_id: employer.id, // FK automatically
-  };
-
-  return supabase.from("jobs").insert([jobPayload]).select().single();
+  return supabase
+    .from("jobs")
+    .insert({
+      ...payload,
+      employer_id: employer.id, // ✅ ONLY employer.id
+    })
+    .select()
+    .single();
 };
 
-// Update a job
+/* ================= UPDATE JOB ================= */
 export const updateJob = async (id: string, payload: JobDB) => {
   const employer = await getEmployerByUser();
   if (!employer) throw new Error("Employer not found");
 
-  const jobPayload: JobDB = {
-    ...payload,
-    employer_id: employer.id, // FK stays correct
-  };
-
   return supabase
     .from("jobs")
-    .update(jobPayload)
+    .update({
+      ...payload,
+      employer_id: employer.id,
+    })
     .eq("id", id)
     .select()
     .single();
 };
 
-// Delete a job
+/* ================= DELETE JOB ================= */
 export const deleteJob = async (id: string) => {
   return supabase.from("jobs").delete().eq("id", id);
 };
 
-// Get jobs for logged-in user's employer
+/* ================= GET MY JOBS ================= */
 export const getMyJobs = async () => {
   const employer = await getEmployerByUser();
   if (!employer) return { data: [], error: null };
 
-  const { data, error } = await supabase
+  return supabase
     .from("jobs")
     .select("*")
     .eq("employer_id", employer.id)
     .order("created_at", { ascending: false });
-
-  return { data, error };
 };

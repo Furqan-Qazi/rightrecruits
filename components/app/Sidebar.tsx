@@ -16,6 +16,7 @@ import {
   CreditCard,
   MessageSquare,
   Check,
+  SearchCode,
 } from "lucide-react";
 
 const Sidebar = () => {
@@ -44,6 +45,11 @@ const Sidebar = () => {
       icon: <Users size={20} />,
       label: "Job POST",
       link: "/app/jobpost",
+    },
+    {
+      icon: <SearchCode size={20} />,
+      label: "Job Search",
+      link: "/app/jobsearch",
     },
 
     { icon: <Briefcase size={20} />, label: "My Jobs", link: "/my-jobs" },
@@ -143,7 +149,7 @@ const Sidebar = () => {
               {item.icon}
               <span className="text-sm font-medium">{item.label}</span>
             </Link>
-          )
+          ),
         )}
       </nav>
     </aside>
