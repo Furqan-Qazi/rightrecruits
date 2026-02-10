@@ -26,28 +26,27 @@ export default function SlideIn({
       )}
 
       {/* Center Modal */}
-      <div
-        className={`fixed inset-0 z-50 flex items-center justify-center pointer-events-none`}
-      >
+      <div className={`fixed inset-0 z-50 flex items-stretch justify-end pointer-events-none`}>
         <div
           className={`
-            bg-white w-full ${width} rounded-xl shadow-xl
+            bg-white w-full ${width} rounded-l-md shadow-xl
             transform transition-all duration-300
             ${open ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"}
             pointer-events-auto
             relative
+            flex flex-col
           `}
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b">
-            <h2 className="text-lg font-semibold">{title}</h2>
+          <div className="flex items-center justify-between p-4 border-b shadow">
+            <h2 className="text-lg text-zinc-700 font-semibold">{title}</h2>
             <button onClick={onClose}>
               <X className="text-gray-600 hover:text-black" />
             </button>
           </div>
 
           {/* Content */}
-          <div className="p-4 max-h-[80vh] overflow-y-auto">{children}</div>
+          <div className="p-4 h-full overflow-y-auto">{children}</div>
         </div>
       </div>
     </>

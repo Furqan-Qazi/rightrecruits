@@ -15,6 +15,7 @@ interface InputFieldProps {
   error?: string | null;
   autoComplete?: string;
   disabled?: boolean;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 const InputField: React.FC<InputFieldProps> = ({
@@ -31,11 +32,16 @@ const InputField: React.FC<InputFieldProps> = ({
   error = null,
   autoComplete,
   disabled = false, // ✅ default false
+  onChange,
 }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (typeof setValue === "function") {
       setValue(e.target.value);
       return;
+    }
+
+    if (typeof onChange === "function") {
+      onChange(e);
     }
   };
 

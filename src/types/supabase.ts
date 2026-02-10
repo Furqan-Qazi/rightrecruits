@@ -92,7 +92,7 @@ export type Database = {
         Row: {
           address: Json | null
           created_at: string | null
-          current_role: string | null
+          current_role: Database["public"]["Enums"]["Role"] | null
           date_of_birth: string | null
           education: Json | null
           email: string
@@ -108,7 +108,7 @@ export type Database = {
         Insert: {
           address?: Json | null
           created_at?: string | null
-          current_role?: string | null
+          current_role?: Database["public"]["Enums"]["Role"] | null
           date_of_birth?: string | null
           education?: Json | null
           email: string
@@ -124,7 +124,7 @@ export type Database = {
         Update: {
           address?: Json | null
           created_at?: string | null
-          current_role?: string | null
+          current_role?: Database["public"]["Enums"]["Role"] | null
           date_of_birth?: string | null
           education?: Json | null
           email?: string
@@ -491,7 +491,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      Role: "Admin" | "Seeker" | "Company"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -618,6 +618,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      Role: ["Admin", "Seeker", "Company"],
+    },
   },
 } as const

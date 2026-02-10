@@ -5,6 +5,7 @@ import { supabase } from "@/src/lib/supabaseClient";
 import JobSearch from "@/components/app/jobsearch/JobSearch";
 import { Search, Filter } from "lucide-react";
 import JobFilter from "@/components/app/jobsearch/JobFilter";
+import InputField from "@/components/global/InputField";
 
 export default function JobSearchPage() {
   const [jobs, setJobs] = useState<any[]>([]);
@@ -71,7 +72,10 @@ export default function JobSearchPage() {
 
   useEffect(() => {
     fetchJobs();
+    supabaseRealtime();
+  }, []);
 
+  const supabaseRealtime = () => {
     const channel = supabase
       .channel("jobs-realtime")
       .on(
@@ -82,12 +86,8 @@ export default function JobSearchPage() {
       .subscribe();
 
     return () => supabase.removeChannel(channel);
-  }, []);
+  }
 
-  // 🔄 Re-fetch when search changes
-  useEffect(() => {
-    fetchJobs();
-  }, [search]);
 
   if (loading) {
     return <p className="text-center mt-10 text-gray-500">Loading jobs...</p>;
@@ -96,27 +96,20 @@ export default function JobSearchPage() {
   const [featuredJob, ...otherJobs] = jobs;
 
   return (
-    <section className="max-w-7xl mx-auto my-10 px-4">
+    <section className="max-w-7xl mx-auto my-4 px-4">
       {/* 🔥 Heading */}
-      <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">
-        🔥 Latest Job Posts
+      <h1 className="text-xl font-bold text-gray-800 mb-6">
+        Latest Job Posts
       </h1>
 
       {/* 🔍 Search + Buttons Row */}
-      <div className="flex flex-col sm:flex-row items-center gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row items-end gap-2 mb-8">
         {/* Search Input */}
         <div className="flex-1 w-full relative">
-          <Search
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-            size={18}
-          />
-
-          <input
-            type="text"
+          <InputField
             placeholder="Search jobs by title..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-10 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+            setValue={setSearch}
           />
 
           {/* Clear / Cancel Button */}
@@ -140,7 +133,7 @@ export default function JobSearchPage() {
             e.stopPropagation(); // 🔥 VERY IMPORTANT
             setFilterOpen(true);
           }}
-          className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-md transition"
+          className="flex items-center gap-2 px-4 py-3 mb-0 text-sm cursor-pointer text-zinc-500 bg-zinc-200 hover:bg-gray-200 rounded-md transition"
         >
           <Filter size={18} />
           Filter
@@ -149,7 +142,7 @@ export default function JobSearchPage() {
         {/* Search Button */}
         <button
           onClick={fetchJobs}
-          className="flex items-center gap-2 px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition"
+          className="flex items-center gap-2 px-5 py-3 text-sm cursor-pointer bg-blue-600 hover:bg-blue-700 text-white rounded-md transition"
         >
           <Search size={18} />
           Search

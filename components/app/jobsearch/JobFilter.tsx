@@ -1,5 +1,6 @@
 "use client";
 
+import InputField from "@/components/global/InputField";
 import { X } from "lucide-react";
 
 type Filters = {
@@ -38,7 +39,7 @@ export default function JobFilter({
         >
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-4 border-b">
-            <h2 className="text-xl font-semibold">Filter Jobs</h2>
+            <h2 className="text-xl text-zinc-600 font-semibold">Filter Jobs</h2>
             <button onClick={onClose}>
               <X className="text-gray-500 hover:text-black" />
             </button>
@@ -46,22 +47,20 @@ export default function JobFilter({
 
           {/* Body */}
           <div className="p-5 space-y-4">
-            <input
+            <InputField 
               placeholder="Company name"
               value={filters.company_name}
               onChange={(e) =>
                 setFilters({ ...filters, company_name: e.target.value })
               }
-              className="w-full border px-4 py-2 rounded-lg"
             />
 
-            <input
+            <InputField
               placeholder="Location"
               value={filters.location}
               onChange={(e) =>
                 setFilters({ ...filters, location: e.target.value })
               }
-              className="w-full border px-4 py-2 rounded-lg"
             />
 
             <select
@@ -69,7 +68,7 @@ export default function JobFilter({
               onChange={(e) =>
                 setFilters({ ...filters, employment_type: e.target.value })
               }
-              className="w-full border px-4 py-2 rounded-lg"
+              className="w-full px-3 py-2 rounded-lg border border-zinc-300 outline-none transition text-gray-700 focus:ring-2 focus:ring-lime-500"
             >
               <option value="">Employment Type</option>
               <option value="Full-time">Full-time</option>
@@ -79,31 +78,29 @@ export default function JobFilter({
             </select>
 
             <div className="flex gap-3">
-              <input
+              <InputField
                 type="number"
                 placeholder="Min Salary"
                 value={filters.salary_min}
                 onChange={(e) =>
                   setFilters({ ...filters, salary_min: e.target.value })
                 }
-                className="w-full border px-4 py-2 rounded-lg"
               />
 
-              <input
+              <InputField
                 type="number"
                 placeholder="Max Salary"
                 value={filters.salary_max}
                 onChange={(e) =>
                   setFilters({ ...filters, salary_max: e.target.value })
                 }
-                className="w-full border px-4 py-2 rounded-lg"
               />
             </div>
           </div>
 
           {/* Footer */}
           <div className="px-5 py-4 border-t flex gap-3">
-            <button onClick={onClose} className="w-1/2 border rounded-lg py-2">
+            <button onClick={onClose} className="w-1/2 border text-zinc-400 rounded-lg py-2">
               Cancel
             </button>
 
