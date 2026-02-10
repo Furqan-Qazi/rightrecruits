@@ -92,13 +92,15 @@ export type Database = {
         Row: {
           address: Json | null
           created_at: string | null
-          current_role: string | null
+          current_role: Database["public"]["Enums"]["Role"] | null
+          date_of_birth: string | null
           education: Json | null
           email: string
           experience: Json | null
           full_name: string
+          headline: string | null
           id: string
-          introduction: string | null
+          phone: string | null
           skills: Json | null
           summary: string | null
           user_id: string
@@ -106,13 +108,15 @@ export type Database = {
         Insert: {
           address?: Json | null
           created_at?: string | null
-          current_role?: string | null
+          current_role?: Database["public"]["Enums"]["Role"] | null
+          date_of_birth?: string | null
           education?: Json | null
           email: string
           experience?: Json | null
           full_name: string
+          headline?: string | null
           id?: string
-          introduction?: string | null
+          phone?: string | null
           skills?: Json | null
           summary?: string | null
           user_id: string
@@ -120,13 +124,15 @@ export type Database = {
         Update: {
           address?: Json | null
           created_at?: string | null
-          current_role?: string | null
+          current_role?: Database["public"]["Enums"]["Role"] | null
+          date_of_birth?: string | null
           education?: Json | null
           email?: string
           experience?: Json | null
           full_name?: string
+          headline?: string | null
           id?: string
-          introduction?: string | null
+          phone?: string | null
           skills?: Json | null
           summary?: string | null
           user_id?: string
@@ -196,6 +202,7 @@ export type Database = {
           description: string | null
           id: string
           industry: string | null
+          user_id: string | null
           website: string | null
         }
         Insert: {
@@ -205,6 +212,7 @@ export type Database = {
           description?: string | null
           id?: string
           industry?: string | null
+          user_id?: string | null
           website?: string | null
         }
         Update: {
@@ -214,6 +222,7 @@ export type Database = {
           description?: string | null
           id?: string
           industry?: string | null
+          user_id?: string | null
           website?: string | null
         }
         Relationships: []
@@ -414,55 +423,40 @@ export type Database = {
       }
       jobs: {
         Row: {
+          company_name: string | null
           created_at: string | null
-          currency: string | null
           employer_id: string | null
           employment_type: string | null
           id: string
           job_description: string | null
           job_title: string
-          max_experience_years: number | null
-          min_experience_years: number | null
-          qualifications: string | null
-          responsibilities: string | null
+          location: string | null
           salary_max: number | null
           salary_min: number | null
-          status: string | null
-          work_type: string | null
         }
         Insert: {
+          company_name?: string | null
           created_at?: string | null
-          currency?: string | null
           employer_id?: string | null
           employment_type?: string | null
           id?: string
           job_description?: string | null
           job_title: string
-          max_experience_years?: number | null
-          min_experience_years?: number | null
-          qualifications?: string | null
-          responsibilities?: string | null
+          location?: string | null
           salary_max?: number | null
           salary_min?: number | null
-          status?: string | null
-          work_type?: string | null
         }
         Update: {
+          company_name?: string | null
           created_at?: string | null
-          currency?: string | null
           employer_id?: string | null
           employment_type?: string | null
           id?: string
           job_description?: string | null
           job_title?: string
-          max_experience_years?: number | null
-          min_experience_years?: number | null
-          qualifications?: string | null
-          responsibilities?: string | null
+          location?: string | null
           salary_max?: number | null
           salary_min?: number | null
-          status?: string | null
-          work_type?: string | null
         }
         Relationships: [
           {
@@ -497,7 +491,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      Role: "Admin" | "Seeker" | "Company"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -624,6 +618,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      Role: ["Admin", "Seeker", "Company"],
+    },
   },
 } as const
